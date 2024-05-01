@@ -1,0 +1,298 @@
+
+************************************************************* JOURNAL_1 MANUAL ***************************************************************************************
+
+A) GPG (Gene Pathway Graph) construction [/GPG]
+
+	1) Choose the organism for which the pathway maps will be downloaded from the KEGG Pathway Maps. In our case, we have selected E. coli K-12 strain
+	   whose 3 letter organism code is 'eco'.
+
+	2) Go to your browser address bar and type 'http://www.kegg.jp/kegg-bin/show_organism?menu_type=pathway_maps&org=eco' to get the list of all 
+	   pathway maps. Manually save them in a file named as 'KEGG_Pathway_Maps_eco.txt' in 'GPG/Input' folder. One pathway must be present in each 
+	   line in the following format 'path:eco01100[TAB]Metabolic pathways' (an example). 
+
+	3) The name of each pathway map is present in each line in 'GPG/Input/KEGG_Pathway_Maps_eco.txt'. Now each pathway map will be downloaded from
+	   the KEGG website by the source code 'GPG/Code/Download_Pathway_Maps.java'. The pathway maps after getting downloaded will be stored in 
+	   separate files in 'GPG/KEGG_Pathway_Maps'.
+
+	4) The filenames storing the Pathway Maps located in 'GPG/KEGG_Pathway_Maps' will be listed and stored in a separate file named as 
+	   'Pathway_Filenames.txt' located in 'GPG/KEGG_Pathway_Maps'. This file is needed in other parts of the project. This job is done by the
+	   source code 'GPG/Code/Kegg_Pathway_Listing.py'.
+
+	5) The nodes and edges will be extracted from the KEGG Pathway Maps and they are stored in 'GPG/Nodes_Edges_GPG/Nodes_Pathway_Maps.txt' and
+	   'GPG/Nodes_Edges_GPG/Edges_Pathway_Maps.txt' respectively. 'GPG/Nodes_Edges_GPG/Nodes_Pathway_Maps.txt' contains a node list with weblinks 
+	   to extract information online. In 'GPG/Nodes_Edges_GPG/Edges_Pathway_Maps.txt', two consecutive lines make one edge, for example, 
+	   v1(line 1) <--> v2(line 2), v1(line 3) <--> v2(line 4) and so on. This job is done by the source code 'GPG/Code/Extract_Nodes_Edges.py'.
+
+	6) Information on the nodes of the GPG will be downloaded from the Kegg website and will be saved in the form of html files in 'GPG/Nodes_GPG'. 
+	   The input file is 'GPG/Nodes_Edges_GPG/Nodes_Pathway_Maps.txt'. This job is done by the source code 'GPG/Code/Download_Nodes_Pathway_Maps.py'.
+
+	7) The number of files present in 'GPG/Nodes_GPG' will be counted and saved in 'GPG/Nodes_GPG/noOfFiles.txt'. This job is done by the source 
+	   code 'GPG/Code/Count_No_Of_Files_Nodes_GPG.py'.
+
+	8) The UniProt IDs of the nodes of GPG present in 'GPG/Nodes_GPG' are extracted and saved in 'GPG/Uniprot_Ids_GPG/IDs.txt'. If the UniProt ID 
+ 	   of a protein is not found, then the specific line is left blank. This job is done by the source code 
+	   'GPG/Code/Extract_Uniprot_Ids_Nodes_Of_GPG.java'.
+
+	9) The direct edges of GPG are identified and stored in 'GPG/GPG_Direct_Edges/GPG_DiEdges.txt'. This job is done by the source code
+	   'GPG/Code/GPG_Direct_Edges.java'.
+
+	10) The indirect edges of GPG are determined and stored in 'GPG/GPG_Edges/Direct_Indirect_Edges.txt' which contains the direct edges also. 
+	    The final GPG is constructed by combining both direct and indirect edges and is stored in 'GPG/GPG_Edges/GPG.txt'. The nodes are also
+	    extracted which are stored in 'GPG/GPG_Edges/Nodes.txt'. This job is done by the source code 'GPG/Code/Construct_GPG.py'.
+
+B) PPID (Protein-Protein Interaction from DIP) construction [/PPID]
+
+	1) Choose the organism for which the DIP interaction data will be downloaded from 'http://dip.mbi.ucla.edu/dip/download?mst=1:2:1&tbs=5:0'. 
+	   In our case, we have selected E. coli K-12 strain.
+
+	2) The DIP interaction data for E. coli K-12 is present in 'PPID/Input/DIP_Database_Ecoli(K12).txt'. Each line of this file contains a 
+	   single interaction information between two proteins. 
+
+	3) If either of the 2 interacting proteins have become obsolete as per UniProt, then the corresponding interaction is removed from the DIP database. The
+	   reduced DIP is present in 'PPID/Reduced_DIP/DIP_After_Removing_Uniprot_Obsolete_Proteins.txt'. This job is done by the source code
+	   'PPID/Code/Remove_Uniprot_Obsolete_Proteins.java'. An additional file is generated which stores the number of proteins/nodes present in PPID
+	    which is stored in 'PPID/Reduced_DIP/noOfNodes.txt'.
+
+	4) The final PPID is constructed by extracting the nodes and edges of PPID which are stored in 'PPID/Nodes_Edges_PPID/Nodes.txt' and 
+	   'PPID/Nodes_Edges_PPID/Edges.txt' respectively. This job is done by the source code 'PPID/Code/Extract_Nodes_Edges_PPID.java'.
+
+C) Combination of GPG and PPID [/GPG_And_PPID]
+
+	1) GPG and PPID is combined together, and the combined graph is present in 'GPG_And_PPID/GPG_PPID/GPG_PPID.txt'. This job is done by the source code
+	   'GPG_And_PPID/Code/Construct_GPG_PPID.java'.
+
+D) PPII (Protein-Protein Interaction from IntAct) construction [/PPII]
+	
+	1) Download the entire IntAct database as organism-specific databases are not available.
+
+	2) The IntAct database is present in 'PPII/Input/IntAct_Database.txt'. Each line of this file contains a single interaction information between two proteins. 
+
+	3) Only the interacting proteins and their corresponding taxids are extracted from the IntAct database and stored in 'PPII/Reduced_IntAct/Reduced_IntAct.txt'.
+	   This job is done by the source code 'PPII/Code/Extract_Proteins_And_Taxids.py'.
+
+	4) The PPIs for E. coli are extracted from the reduced version of IntAct database stored in 'PPII/Reduced_IntAct/Reduced_IntAct.txt' by providing the taxid
+	   of E. coli which is 83333 and are stored in 'PPII/Interactions_Ecoli/Ecoli_PPIs.txt' and 'PPII/Interactions_Ecoli/Ecoli_PPIs_Processing.txt' (conatins
+	   a blank line at the top for future processing purposes). This job is done by the source code 'PPII/Code/Extract_Interactions_Ecoli.py'.
+
+	5) The number of nodes present in PPII of E. coli is counted and stored in 'PPII/Interactions_Ecoli/noOfNodes.txt'. This job is done by the source code
+	   'PPII/Code/Count_Nodes_PPII.py'.
+
+	6) The unweighted edges of PPII are extracted and stored in 'PPII/Nodes_Edges_PPII/Unweighted_Edges.txt'. This job is done by the source code
+	   'PPII/Code/Extract_Unweighted_Edges.py'.
+
+	7) Nodes of PPII are extracted and stored in 'PPII/Nodes_Edges_PPII/Nodes.txt'. This job is done by the source code 'PPII/Code/Extract_Nodes.py'.
+
+	8) Edges of PPII are extracted and stored in 'PPII/Nodes_Edges_PPII/Edges.txt'. This job is done by the source code 'PPII/Code/Extract_Edges.py'.
+
+E) Combination of GPG, PPID, PPII [/GPG_PPID_PPII]
+
+	1) GPG, PPID, PPII are combined together and the combined graph is present in 'GPG_PPID_PPII/GPG_PPID_PPII.txt'. This job is done by the source
+	   code 'GPG_PPID_PPII/Code/Construct_GPG_PPID_PPII.java'.
+
+F) PPIM (Protein-Protein Interaction from MINT) construction [/PPIM]
+
+	1) Download the entire MINT database as organism-specific databases are not available. 
+
+	2) The MINT database is present in 'PPIM/Input/MINT_Database.txt'. Each line of this file contains a single interaction information between two proteins.
+
+	3) The missing interactions are removed from the MINT database and the updated database is stored in 'PPIM/Reduced_MINT/Reduced_MINT.txt'. This 
+	   file contains only the interacting proteins along with their taxids. This job is done by the source code 'PPIM/Code/Remove_Missing_Interactions.py'.
+
+	4) The PPIs for E. coli are extracted from the reduced version of MINT database stored in 'PPIM/Reduced_MINT/Reduced_MINT.txt' by providing the taxid
+	   of E. coli which is 83333 and are stored in 'PPIM/Interactions_Ecoli/Ecoli_PPIs.txt' and 'PPIM/Interactions_Ecoli/Ecoli_PPIs_Processing.txt' (conatins
+	   a blank line at the top for future processing purposes). This job is done by the source code 'PPIM/Code/Extract_Interactions_Ecoli.py'.
+
+	5) The number of nodes present in PPIM of E. coli is counted and stored in 'PPIM/Interactions_Ecoli/noOfNodes.txt'. This job is done by the source code
+	   'PPIM/Code/Count_Nodes_PPIM.py'.
+
+	6) The unweighted edges of PPIM are extracted and stored in 'PPIM/Nodes_Edges_PPIM/Unweighted_Edges.txt'. This job is done by the source code
+	   'PPIM/Code/Extract_Unweighted_Edges.py'.
+
+	7) Nodes of PPIM are extracted and stored in 'PPIM/Nodes_Edges_PPIM/Nodes.txt'. This job is done by the source code 'PPIM/Code/Extract_Nodes.py'.
+
+	8) Edges of PPIM are extracted and stored in 'PPIM/Nodes_Edges_PPIM/Edges.txt'. This job is done by the source code 'PPIM/Code/Extract_Edges.py'.
+
+G) Combination of GPG, PPID, PPII, PPIM [/GPG_PPID_PPII_PPIM]
+
+	1) GPG, PPID, PPII, PPIM are combined together and the combined graph is present in 'GPG_PPID_PPII_PPIM/GPG_PPID_PPII_PPIM.txt'. This job is done by 
+	   the source code 'GPG_PPID_PPII_PPIM/Code/Construct_GPG_PPID_PPII_PPIM.java'.
+
+H) PPIB (Protein-Protein Interaction from BioGRID) construction [/PPIB]
+
+	1) Download the entire BioGRID database as organism-specific databases are not available. 
+
+	2) The BioGRID database is present in 'PPIB/Input/BioGRID_Database.txt'. Each line of this file contains a single interaction information between two proteins.
+
+	3) The PPIs for E. coli are extracted from the BioGRID database stored in 'PPIB/Input/BioGRID_Database.txt' by providing the taxid of E. coli which is 
+	   511145 and are stored in 'PPIB/Intermediate_Files/Ecoli_PPIs.txt'. This job is done by the source code 'PPIB/Code/Extract_Interactions_Ecoli.py'.
+
+	4) In the file, 'PPIB/Intermediate_Files/Ecoli_PPIs.txt', the proteins are represented by their entrez locuz link. So we need to extract the UniProt 
+	   IDs of those proteins. The UniProt information for each individual protein is downloaded and stored in 'PPIB/Nodes_BioGRID'. The nodecount of PPIB
+	   is calculated and stored in 'PPIB/Intermediate_Files/noOfNodes.txt'. This job is done by the source code 'PPIB/Code/Extract_UniProtIDs.py'.
+
+	5) Genes are replaced by the UniProt Accession Numbers of the proteins and are stored in 'PPIB/Intermediate_Files/Genes_Exchanged_Proteins.txt'. This
+	   job is done by the source code 'PPIB/Code/Exchange_Gene_Protein.py'.
+
+	6) Missing interactions are removed from the BioGRID E. coli PPIs and stored in 'PPIB/Interactions_Ecoli/Ecoli_PPIs.txt' and 
+	   'PPIB/Interactions_Ecoli/Ecoli_PPIs_Processing.txt' (conatins a blank line at the top for future processing purposes). This job is done by the 
+ 	   source code 'PPIB/Code/Remove_Missing_Interactions.py'.
+
+	7) The number of nodes present in PPIB of E. coli is counted and stored in 'PPIB/Interactions_Ecoli/Nodecount.txt'. This job is done by the source code
+	   'PPIB/Code/Count_Nodes_PPIB.py'.
+
+	8) The unweighted edges of PPIB are extracted and stored in 'PPIB/Nodes_Edges_PPIB/Unweighted_Edges.txt'. This job is done by the source code
+	   'PPIB/Code/Extract_Unweighted_Edges.py'.
+
+	9) Nodes of PPIB are extracted and stored in 'PPIB/Nodes_Edges_PPIB/Nodes.txt'. This job is done by the source code 'PPIB/Code/Extract_Nodes.py'.
+
+	10) Edges of PPIB are extracted and stored in 'PPIB/Nodes_Edges_PPIB/Edges.txt'. This job is done by the source code 'PPIB/Code/Extract_Edges.py'.
+
+I) PLG (Protein Locality Graph) construction [/PLG]
+
+	1) GPG, PPID, PPII, PPIM, PPIB are combined together and the combined graph is present in 'PLG/PLG.txt'. This job is done by 
+	   the source code 'PLG/Code/Construct_PLG.java'.
+
+J) Removing obsolete nodes and edges from PLG as per UniProt [/PLG_Filtering]
+
+	1) The UniProt files for all the proteins of PLG are downloaded via a webscrapper and are stored in 'PLG_Filtering/MolecularWeight_From_UniProt'. This
+	   job is done by the source code 'PLG_Filtering/Code/Extract_MolecularWeight.py'.
+
+	2) The molecular weights of some of the proteins are absent in UniProt. Those proteins are considered as obsolete. For the remaining proteins, their
+	   molecular weights are extracted from their UniProt files stored in 'PLG_Filtering/MolecularWeight_From_UniProt', and their volumes are calculated
+	   and stored in 'PLG_Filtering/Volume_SA_Filtered_PLG_Nodes/MolecularWeight_Vol.txt'. The surface area for these valid PLG nodes are also calculated 
+	   and are stored in 'PLG_Filtering/Volume_SA_Filtered_PLG_Nodes/Surface_Area.txt'. The PLG nodes after removing the obsolete ones as per UniProt is
+	   stored in 'PLG_Filtering/Filtered_PLG/Nodes.txt'. All these jobs are done by the source code 'PLG_Filtering/Code/Calculate_Volume_SurfaceArea.py'.
+
+	3) The edges present in PLG corresponding to the obsolete proteins are removed and the filtered PLG edges are present in 
+	   'PLG_Filtering/Filtered_PLG/Edges.txt'. This job is done by the source code 'PLG_Filtering/Code/Extract_Filtered_PLG.py'.
+
+K) Clustering PLG [/PLG_Clustering]
+
+	1) The pickle files for nodes and edges of PLG are generated and saved in 'PLG_Clustering/Intermediate_Files/Nodes_PLG.pickle' and 
+	   'PLG_Clustering/Intermediate_Files/Edges_PLG.pickle' respectively. These files are needed for clustering PLG. This job is done by the source code
+	   'PLG_Clustering/Code/Extract_Nodes_Edges_Pickle_PLG.py'.
+	
+	2) Install Markov Cluster Algorithm (MCL) in your system.
+
+	3) PLG is clustered by MCL and the single-node clusters (self-interacting clusters) are stored in 'PLG_Clustering/MCL_Clusters/Single_Node_Clusters.txt'
+	   and the multi-node clusters (which share edges with other clusters) are stored in 'PLG_Clustering/MCL_Clusters/out.Shared_Edges.txt.I20'. This job is
+	   done by the source code 'PLG_Clustering/Code/Cluster_By_MCL.py'. Some dump files are generated and stored for future processing. These dump files are
+	   'PLG_Clustering/MCL_Clusters/clusters.pickle', 'PLG_Clustering/MCL_Clusters/edges.pickle', 'PLG_Clustering/MCL_Clusters/nodes.pickle',
+	   'PLG_Clustering/MCL_Clusters/nodeToCluster.pickle'.
+
+L) GO Verification [/GO]
+
+	1) The individual cluster information are extracted from the MCL output saved in 'PLG_Clustering/MCL_Clusters/out.Shared_Edges.txt.I20' and the results are
+	   stored in 'GO/Individual_Clusters'. This job is done by the source code 'GO/Code/Separate_Clusters.py'.
+
+	2) Use the Frela web service ('https://frela.eurac.edu/') to compute functional similarity values of the proteins belonging to a particular cluster wrt all
+	   the proteins of the PLG. So the panel file that should be submitted to Frela is the nodes of the PLG saved in 'PLG_Filtering/Filtered_PLG/Nodes.txt'. Each
+	   cluster file stored in 'GO/Individual_Clusters' are uploaded along with the constant Panel file. The results are manually downloaded and stored in 
+	   'GO/Frela_Output/'. This task is repeated for the clusters numbered 5-125 and the single-node clusters. Unfortunately, clusters 1-4 are too big to be submitted
+	   to Frela as a whole file as Frela does not support huge sized files. So these cluster files need to be splitted into multiple short files.
+
+	3) The huge sized clusters 1,2,3,4 are splitted into smaller files where each file contains 60 proteins. This job is done by the source code 'GO/Code		
+	   Split_Cluster_Files.py'. Manually input the clusters into the source code and get the smaller file outputs which are saved in 'GO/Individual_Clusters'.
+
+	4) Use Frela again and manually get the FS files for the clusters 1,2,3,4 (broken parts). Now the task of using Frela terminates here.
+
+	5) Manually merge the split Frela output of the split cluster files into a single Frela output formatted file for future processing. This job is done by the
+	   source code 'GO/Code/Merge_Cluster_Files.py'. This task is performed for the split clusters 1,2,3,4.
+
+	6) Construct the Functional Similarity Matrix (FSM) where each cell (i,j) contains the combined FS value between proteins i and j and is stored in 
+	   'GO/Functional_Similarity_Matrix/FSM_Combined.tsv'. This job is done by the source code 'GO/Code/Get_FSM_Combined.py'.
+
+	7) Construct the Functional Similarity Matrix (FSM) where each cell (i,j) contains the FS value between proteins i and j for BP, CC and MF ontology 
+	   which are stored in 'GO/Functional_Similarity_Matrix/FSM_BP.tsv', 'GO/Functional_Similarity_Matrix/FSM_CC.tsv', 
+	   'GO/Functional_Similarity_Matrix/FSM_MF.tsv' respectively. This job is done by the source code 'GO/Code/Get_FSM_Separate.py'.
+
+	8) Now we have to determine the obsolute proteins as per Frela and remove them from the GO based analysis. Firstly, we construct the FSM where each cell (i,j)
+	   contains the FS values for BP,MF,CC ontology between the proteins i and j. Those proteins which do not have any FS value for any ontology are considered as
+	   obsolute and are extracted and are stored in 'GO/Obsolute_Proteins/Frela_Obsolute.txt'. This job is done by the source code 
+	   'GO/Code/Extract_Obsolute_Frela.py'.
+
+	9) Now we need to check whether the Frela obsolute proteins are also obsolute wrt Gene Ontology database. For this purpose, 2 files are needed. One is the
+	   Gene Ontology database and the other one is the GO information of all the proteins of E. coli. 
+
+	10) Download the GO database from 'http://geneontology.org/page/download-ontology' and save it in 'GO/Input/go.obo'.
+
+	11) Download the GO information of all the proteins of all the organisms from UniProt website 'ftp://ftp.ebi.ac.uk/pub/databases/GO/goa/UNIPROT/' and save it in
+	    'GO/Input/goa_uniprot_all.gpa'.
+
+	12) Extract the GO information of the proteins present in the filtered PLG of E. coli from 'GO/Input/goa_uniprot_all.gpa' and save it in 'GO/Input/Ecoli_GO.txt'.
+	    This job is done by the source code 'GO/Code/Extract_Ecoli_GO_Uniprot.py'.
+
+	13) Extract the GO hierarchies of the PLG proteins from the GO database stored in 'GO/Input/go.obo' and are saved in 'GO/Individual_Clusters_GO_Hierarchies'.
+	    This job is done by the source code 'GO/Code/Extract_GO_Hierarchy.py'.
+	
+	14) Now we have to determine the obsolute proteins as per GO database. Those proteins which do not have any GO hierarchy for any ontology are considered as
+	    obsolute and are extracted and are stored in 'GO/Obsolute_Proteins/GO_Obsolute.txt'. This job is done by the source code 'GO/Code/Extract_Obsolute_GO.py'. 
+
+	15) Generate the final list of obsolute proteins by merging the obsolute files generated as per GO and Frela and save it in 
+	    'GO/Obsolute_Proteins/GO_Frela_Obsolute.txt'. This job is done by the source code 'GO/Code/Merge_GO_Frela_Obsolute.py'.
+
+	16) The obsolute proteins as per GO and Frela are removed from the clusters and the modified clusters are saved in 'GO/Clusters_After_Removing_Obsolute_Proteins'.
+	    This work is done by the source code 'GO/Code/Remove_Obsolute_Modify_Clusters.py'.
+
+	17) After removing the obsolute proteins, some clusters may become empty which have to be removed from the folder and eliminated from further analysis. After
+	    removing the empty clusters, the final clusters for further analysis are saved in 'GO/Clusters_After_Removing_Obsolute_Proteins'. This job is done by the
+	    source code 'GO/Code/Refresh_Clusters.py'.
+
+	18) A statistical analysis is performed on the clusters for verifying their functionality. Intracluster and intercluster average FS values are computed and
+	    are stored in 'GO/Analysis_Output/InClusterAnalysis.csv' and 'GO/Analysis_Output/OutClusterAnalysis.csv' respectively. This job is done by the source code
+	    'GO/Code/Statistical_Analysis.py'.
+
+	19) Sort the analysis files saved in 'GO/Analysis_Output/InClusterAnalysis.csv' and 'GO/Analysis_Output/OutClusterAnalysis.csv' in ascending order by opening
+	    the files in LibreOffice or Excel. Delete the last line from both of these files which contains information on the single node clusters.
+
+	20) Generate the boxplots of the statistical analysis of the clusters wrt BP, MF and CC ontology separately and are saved in 'GO/BoxPlots/BP.eps', 
+	    'GO/BoxPlots/MF.eps', and 'GO/BoxPlots/CC.eps' respectively. This job is done by the source code 'GO/Code/BoxPlot.py'.
+
+	21) Count the validated clusters which are saved in 'GO/Analysis_Output/Analysis.tsv'. This job is done by the source code 'GO/Code/Count_Validated_Clusters.py'.
+
+M) Computational Cell Division [/Cell_Division]
+
+	1) The interconnections between the clusters are counted and the sharing data is saved in 'Cell_Division/Shared_Info/Shared_Clusters.txt'. This job is done
+	   by the source code 'Cell_Division/Code/Extract_Shared_Info.py'.
+
+	2) Generate the distance matrix using the number of interconnections between the clusters and is stored in 'Cell_Division/Distance_Matrix/Dist_Mat.csv'. This
+	   job is done by the source code 'Cell_Division/Code/Generate_Distance_Matrix.py'.
+
+	3) Now install R in Windows/Linux. Do a Principal Coordinates Analysis (PCoA) on the distance matrix and generate the spatial distribution of the clusters stored
+	   in 'Cell_Division/PCoA/PCoA.csv'. This job is done by the source code 'Cell_Division/Code/PCoA.R'.
+
+	4) Voro++ is a software which generates 3D Voronoi Diagram of a given region. We will divide the whole-cell computationally using Voro++. Install Voro++
+	   in your system. The folder of the software is stored in 'Cell_Division/Voro'.
+
+	5) Process the file storing the cluster coordinates to transfer it into the form acceptable by Voro++. Also scale the coordinates according to the whole-cell
+	   dimensions. This processed file is stored in 'Cell_Division/PCoA/PCoA_Processed'. This job is done by the source code 'Cell_Division/Code/PCoA_Processing.py'. 
+
+	6) Modify the input parameters of the file 'Cell_Division/Voro/examples/CCD/import.cc' according to the previous steps. This file is needed for Voronoi
+	   Diagram construction.
+
+	7) The Makefile for Voronoi Diagram construction was already provided by Voro++. This file is present in 'Cell_Division/Voro/examples/CCD/Makefile'. We make
+	   this and get the final VD output. The VD region coordinates are saved in 'Cell_Division/Voro/examples/CCD/Voronoi_Regions.pov'. The VD seed coordinates
+	   are saved in 'Cell_Division/Voro/examples/CCD/Voronoi_Seeds.pov'.
+
+	8) Now for Voronoi Diagram visualization we install Pov-Ray in the system.
+
+	9) Modify the input parameters of 'Cell_Division/Voro/examples/CCD/import.pov' according to the previous steps. This file is needed for Voronoi Diagram
+	   visualization.
+
+	10) Generate the visualisation of the Voronoi Diagram which is saved in 'Cell_Division/Voro/examples/CCD/VD.jpg'. This job is done by the povray source code
+	    'Cell_Division/Voro/examples/CCD/import.pov'.
+
+	11) Cellular Dictionary is extracted using the Voronoi Region coordinates and is stored in 'Cell_Division/Cellular_Dictionary/Cellular_Dictionary.txt'. This
+	    job is done by the source code 'Cell_Division/Code/Extract_Cellular_Dictionary.py'.
+
+
+************************************************************************* THE END **************************************************************************************
+
+
+
+
+
+
+
+
+	   
